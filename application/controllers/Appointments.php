@@ -289,6 +289,7 @@ class Appointments extends EA_Controller {
             ],
             'customer_data' => [
                 'id' => $customer['id'],
+                'cf' => $provider['cf'];
                 'first_name' => $customer['first_name'],
                 'last_name' => $customer['last_name'],
                 'email' => $customer['email'],
