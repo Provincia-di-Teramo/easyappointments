@@ -25,6 +25,7 @@ class Customers_model extends EA_Model {
         parent::__construct();
         $this->load->helper('data_validation');
     }
+    
 
     /**
      * Add a customer record to the database.
@@ -92,7 +93,8 @@ class Customers_model extends EA_Model {
         if ( ! isset(
                 $customer['first_name'],
                 $customer['last_name'],
-                $customer['email']
+                $customer[config('fieldid')]  //for italian public entity this field identify a citizen
+                //$customer['email']
             )
             || ( ! isset($customer['phone_number']) && $phone_number_required))
         {
@@ -100,7 +102,7 @@ class Customers_model extends EA_Model {
         }
 
         // Validate email address
-        if ( ! filter_var($customer['email'], FILTER_VALIDATE_EMAIL))
+        if ( config('fieldid')=='email' && ! filter_var($customer['email'], FILTER_VALIDATE_EMAIL))
         {
             throw new Exception('Invalid email address provided: ' . $customer['email']);
         }
@@ -113,15 +115,16 @@ class Customers_model extends EA_Model {
             ->from('users')
             ->join('roles', 'roles.id = users.id_roles', 'inner')
             ->where('roles.slug', DB_SLUG_CUSTOMER)
-            ->where('users.email', $customer['email'])
+            ->where('users.'.config('fieldid'), config('fieldid'))
+            //->where('users.email', $customer['email'])
             ->where('users.id !=', $customer_id)
             ->get()
             ->num_rows();
 
         if ($num_rows > 0)
         {
-            throw new Exception('Given email address belongs to another customer record. '
-                . 'Please use a different email.');
+            throw new Exception('Given fiscal identity belongs to another customer record. '
+                . 'Please use a different fiscal identity.');
         }
 
         return TRUE;
@@ -142,9 +145,10 @@ class Customers_model extends EA_Model {
      */
     public function exists($customer)
     {
-        if (empty($customer['email']))
+        if (empty($customer[config('fieldid')]))
+            
         {
-            throw new Exception('Customer\'s email is not provided.');
+            throw new Exception('Customer\'s '.config('fieldid').' is not provided.');
         }
 
         // This method shouldn't depend on another method of this class.
@@ -152,7 +156,7 @@ class Customers_model extends EA_Model {
             ->select('*')
             ->from('users')
             ->join('roles', 'roles.id = users.id_roles', 'inner')
-            ->where('users.email', $customer['email'])
+            ->where('users.'.config('fieldid'), $customer[config('fieldid')])
             ->where('roles.slug', DB_SLUG_CUSTOMER)
             ->get()->num_rows();
 
@@ -175,9 +179,9 @@ class Customers_model extends EA_Model {
      */
     public function find_record_id($customer)
     {
-        if (empty($customer['email']))
+        if (empty($customer[config('fieldid')]))
         {
-            throw new Exception('Customer\'s email was not provided: '
+            throw new Exception('Customer\'s '.config('fieldid').' was not provided: '
                 . print_r($customer, TRUE));
         }
 
@@ -186,7 +190,7 @@ class Customers_model extends EA_Model {
             ->select('users.id')
             ->from('users')
             ->join('roles', 'roles.id = users.id_roles', 'inner')
-            ->where('users.email', $customer['email'])
+            ->where('users.'.config('fieldid'), $customer[config('fieldid')])
             ->where('roles.slug', DB_SLUG_CUSTOMER)
             ->get();
 
