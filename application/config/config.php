@@ -457,6 +457,18 @@ $config['rewrite_short_tags'] = FALSE;
 */
 $config['proxy_ips'] = '';
 
+/*
+|--------------------------------------------------------------------------
+| Campo identificativo
+|--------------------------------------------------------------------------
+|
+| Le opzioni sono 'email' e 'cf'. Rapprensenta il campo che nel DB identifica
+| in maniera univoca l'utente. Per la versione italiana andrebbe usato 'cf' 
+| che rappresenta il codice fiscale
+|
+*/
+$config['fieldid'] = 'cf';
+
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */
